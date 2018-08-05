@@ -1,0 +1,168 @@
+<% include ../partials/header.ejs %>
+
+<div class='container'>
+    <div class='row'>
+        <div class='col-md-10 col-centered'>
+            <div class='thumbnail card-static'>
+                <img class='img-responsive card-static-image' src='<%= foundCampground.image %>'>
+                <div class='caption'>
+                    <h4 class='pull-right price'>$<%= foundCampground.price %>/night</h4>
+                    <h4><%= foundCampground.name %></h4>
+                    <br>
+                    <p id='camp-comments'><%= foundCampground.description %></p>
+                    <p><strong><em>Created by: <a href='/users/<%= foundCampground.author.id %>'><%= foundCampground.author.username %></a>, <%= moment(foundCampground.createdAt).fromNow() %></em></strong></p>
+                    <!--check if user is logged-->
+                    <!--check if logged user is the same one that created this camp-->
+                    <% if(currentUser && foundCampground.author.id.equals(currentUser._id)) { %>
+                        <a class='btn btn-xs btn-warning' href='/campgrounds/<%= foundCampground._id %>/edit'>Edit</a>
+                        <form id='delete-camp-form'class='deleteButton' action='/campgrounds/<%= foundCampground._id %>?_method=DELETE' method='POST'>
+                            <button id='delete-camp-btn'class='btn btn-xs btn-danger'>Delete</button>
+                        </form>
+                   <% } %>
+                </div>
+            </div>
+            <div class='well card-static comments-card'>
+                <div class='row add-comment'>
+                    <a class="btn btn-primary pull-right add-comment-btn card-button" role="button" data-toggle="collapse" href="#collapseComment" aria-expanded="false" aria-controls="collapseComment">
+                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add new comment</a>
+                     <!--Comment section title-->
+                     <h4 class='text-left'><strong>Comments <span class="glyphicon glyphicon glyphicon-comment" aria-hidden="true"></span></strong></h4>
+                
+                  <!--Collapse Add a comment form START-->
+                  <div class="collapse" id="collapseComment">
+                    <br>
+                    <div class="well" style="border-left: 5px solid #BAAB68;">
+                        <% if(!currentUser) { %>
+                          <!--If the user is not logged in, direct him to the login page-->
+                          <h5 class='need-login-comments'>You need to login before you can comment. <a href="/login">Click here</a> to go to the login page.</h5>
+                        <% } %>
+                        <% if(currentUser) { %>
+                          <!--If the user is logged in, show the new comment form-->
+                          <h4>Write your comment <span class="glyphicon glyphicon glyphicon-pencil" aria-hidden="true"></span></h4>
+                          <form id="add-comment-form" action="/campgrounds/<%= foundCampground._id %>/comments" method="POST">
+                            <div class="form-group">
+                              <input class="form-control" type="text" disabled value="<%= currentUser.username %>">
+                            </div>
+                            <div class="form-group">
+                              <textarea class="form-control" name="comment[text]" placeholder="Write your comment..." form="add-comment-form" rows="5" cols="70"></textarea>
+                            </div>
+                            <div class="form-group">
+                              <button class="btn btn-default btn-sm">Send <span class="glyphicon glyphicon-comment" aria-hidden="true"></span></button>
+                            </div>
+                          </form>
+                        <% } %>
+                    </div>
+                  </div>
+                  <!--Collapse Add a comment form END-->
+                </div>
+                <hr>
+                <!--Check if there are comments, if there are none say no comments.-->
+                <% if (foundCampground.comments.length === 0) { %>
+                    <em style="color: grey;">No comments here.</em>
+                <% } %>
+                <% foundCampground.comments.forEach(function(comment){ %>
+                    <div class='row'>
+                        <div class='col-md-12'>
+                            <% if (currentUser && currentUser._id.equals(comment.author.id)) { %>
+                                <!--If the current user owns the comment, change the color of the user icon-->
+                                <span style="color: orange;" class="glyphicon glyphicon-user" aria-hidden="true"></span>
+                            <% } else { %>
+                                <!--Else just display it black-->
+                                <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+                            <% } %>
+                            <strong><%= comment.author.username %></strong>
+                            <span class='pull-right'><%= moment(comment.createdAt).fromNow() %></span>
+                            <div>
+                                <% if(comment.wasEdited){ %>
+                                    <h6 style='color: gray' class='pull-right'><em>edited</em></h6>
+                                <% } %>
+                            </div>
+                            <p><%= comment.text %></p>
+                            <% if(currentUser && comment.author.id.equals(currentUser._id)) { %>
+                                <a class="btn btn-xs btn-warning" role="button" data-toggle="collapse" 
+                                href="#collapseEdit<%= comment._id %>" aria-expanded="false" aria-controls="collapse<%= comment._id %>">Edit</a>
+                            
+                               <!--Delete comment button-->
+                               <form id="delete-form" action="/campgrounds/<%= foundCampground._id %>/comments/<%= comment._id %>?_method=DELETE" method="POST" style="display: inline;">
+                                 <button class="btn btn-xs btn-danger">Delete</button>
+                               </form>
+                            
+                               <!--Edit comment form-->
+                               <div class="collapse" id="collapseEdit<%= comment._id %>">
+                                 <div class="well" style="border-left: 5px solid #ffbb33; margin-top: 15px;">
+                                   <h4>Edit your comment <span class="glyphicon glyphicon-edit" aria-hidden="true"></span></h4>
+                                   <form id="edit-comment-form<%= comment._id %>" action="/campgrounds/<%= foundCampground._id %>/comments/<%= comment._id %>?_method=PUT" method="POST">
+                                     <div class="form-group">
+                                       <input class="form-control" type="text" disabled value="<%= currentUser.username %>">
+                                     </div>
+                                     <div class="form-group">
+                                       <textarea class="form-control" name="comment[text]" placeholder="Your comment text..." form="edit-comment-form<%= comment._id %>" rows="5" cols="70"><%= comment.text %></textarea>
+                                     </div>
+                                     <div class="form-group">
+                                       <button class="btn btn-warning btn-sm">Edit comment <span class="glyphicon glyphicon-comment" aria-hidden="true"></span></button>
+                                     </div>
+                                    </form>
+                                  </div>
+                                </div>
+                            <% } %>
+                            <hr>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+            <div class='card-static' id='map'></div>
+            <br>
+        </div>
+    </div>
+</div>
+
+<!--Script for confirm dialog box-->
+<script>
+var deleteForm = document.querySelector('#delete-camp-form')
+var deleteButton = document.querySelector('#delete-camp-btn')
+deleteButton.addEventListener('click', function(e){
+    e.preventDefault()
+    BootstrapDialog.confirm({
+        title: '',
+        message:'Are you sure?', 
+        btnCancelLabel: 'No',
+        btnOKLabel: 'Yes',
+        callback: function(result){
+            if(result) {
+                deleteForm.submit()
+            }
+        }
+    });
+})
+</script>
+
+<!--Script for map render-->
+<script>
+  function initMap() {
+    var lat = <%= foundCampground.lat %>;
+    var lng = <%= foundCampground.lng %>;
+    var center = {lat: lat, lng: lng };
+    var map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 8,
+        center: center,
+        scrollwheel: false
+    });
+    var contentString = `
+      <strong><%= foundCampground.name %><br />
+      <%= foundCampground.location %></strong>
+    `
+    var infowindow = new google.maps.InfoWindow({
+      content: contentString
+    });
+    var marker = new google.maps.Marker({
+        position: center,
+        map: map
+    });
+    marker.addListener('click', function() {
+      infowindow.open(map, marker);
+    });
+  }
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyATGhlvLeLSIG8563MKP99_SMDA_VzRYQ8&callback=initMap"></script>
+
+<% include ../partials/footer.ejs %>

@@ -1,0 +1,41 @@
+<% include ../partials/header.ejs %>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 user-name">
+            <div id="avatar">
+                <img id='avatar-img' class='img-thumbnail img-fluid' src="<%= foundUser.avatar %>">
+            </div>
+            
+        </div>
+        <div class="col-md-8 profile-description">
+            <div>
+                <h4>Full Name</h4>
+                <p><%= foundUser.firstName + ' ' + foundUser.lastName %></p>
+            </div>
+            <div>
+                <h4>Email</h4>
+                <p><%= foundUser.email %></p>
+            </div>
+            <div>
+                <h4>Campgrounds</h4>
+                <% campgrounds.forEach(function(campground){ %>
+                    <li><a href='/campgrounds/<%= campground._id %>'><%= campground.name %></a></li>
+                <% }) %>
+            </div>
+            <div>
+                <h4>Comments</h4>
+                <% comments.forEach(function(comment){ %>
+                    <div>
+                        <p><strong><%= comment.author.username %></strong>
+                        <span class='pull-right'><%= moment(comment.createdAt).fromNow() %></span></p>
+                        <p><%= comment.text %></p>
+                        <hr>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% include ../partials/footer.ejs %>
