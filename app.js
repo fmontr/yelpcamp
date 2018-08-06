@@ -20,7 +20,9 @@ var campgroundRoutes = require("./routes/campgrounds.js"),
 
 //express related setup
 var app = express()
-mongoose.connect('mongodb://localhost/yelp_camp_db')
+// mongoose.connect('mongodb://localhost/yelp_camp_db')
+// mongoose.connect('mongodb://usernodejs:Fmontr9900@ds113442.mlab.com:13442/yelpcampdb')
+mongoose.connect(process.env.DATABASEURL)
 app.set('view engine', 'ejs')
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(express.static(__dirname + '/public'))
