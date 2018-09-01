@@ -11,3 +11,7 @@ Node.js, Express, MongoDB, CSS3, HTML5, Bootstrap
 # Install
 
 You can use git clone or simply download the zip to your local machine.
+
+# Give it a try
+
+Check the deployed app on heroku - https://mighty-forest-46586.herokuapp.com/
